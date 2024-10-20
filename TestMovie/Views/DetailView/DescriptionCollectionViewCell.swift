@@ -11,30 +11,30 @@ class DescriptionCollectionViewCell: UICollectionViewCell {
     static let identifier = "DescriptionCollectionViewCell"
     
     // MARK: - Variables
+    var viewModel: DetailViewModel! {
+        didSet {
+            configureView()
+        }
+    }
     
     // MARK: - UI Components
-    private let descriptionTextView: UITextView = {
-        let descriptionTextView = UITextView()
-        descriptionTextView.textColor = UIColor.label
-        descriptionTextView.alpha = 0.6
-        descriptionTextView.isEditable = false
-        descriptionTextView.backgroundColor = .clear
-        descriptionTextView.isScrollEnabled = false
-        descriptionTextView.showsVerticalScrollIndicator = false
-        descriptionTextView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        descriptionTextView.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        return descriptionTextView
-    }()
-    
     private lazy var taglineLabel: UILabel = {
         let taglineLabel = UILabel()
         taglineLabel.text = ""
         taglineLabel.textColor = UIColor.label
-        taglineLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        taglineLabel.font = UIFont.italicSystemFont(ofSize: 14)
         return taglineLabel
     }()
     
-
+    private lazy var descriptionLabel: UILabel = {
+        let descriptionLabel = UILabel()
+        descriptionLabel.text = ""
+        descriptionLabel.textColor = UIColor.label
+        descriptionLabel.font = UIFont.systemFont(ofSize: 14)
+        descriptionLabel.numberOfLines = 0 // Allow for multiple lines
+        return descriptionLabel
+    }()
+    
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,34 +46,40 @@ class DescriptionCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func configure(with viewModel: DescriptionViewModel) {
-        self.taglineLabel.text = viewModel.tagline
-        self.descriptionTextView.text = viewModel.description
-    }
-
-    
     // MARK: - Setup Views
     private func setupUI() {
         self.addSubview(taglineLabel)
-        self.addSubview(descriptionTextView)
+        self.addSubview(descriptionLabel)
     }
     
     // MARK: - Setup Constraints
     private func configureConstraints() {
-        descriptionTextView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.height.equalTo(130)
-            make.leading.equalToSuperview().offset(10)
-            make.trailing.equalToSuperview().offset(-10)
+        taglineLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
         }
         
-        taglineLabel.snp.makeConstraints { make in
-            make.top.equalTo(descriptionTextView.snp.bottom)
-            make.leading.equalToSuperview().offset(10)
-            make.width.equalTo(70)
-            make.height.equalTo(20)
+        descriptionLabel.snp.makeConstraints { make in
+            make.top.equalTo(taglineLabel.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.bottom.equalToSuperview().offset(-10)
+        }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        taglineLabel.text = nil
+        descriptionLabel.text = nil
+    }
+    
+    // MARK: - Configure View
+    public func configureView() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            taglineLabel.text = "Tagline: \(viewModel.movie.tagline ?? "N/A")"
+            descriptionLabel.text = viewModel.movie.description
         }
     }
 }
-
-

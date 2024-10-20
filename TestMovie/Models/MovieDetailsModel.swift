@@ -32,6 +32,3 @@ struct MovieDetailsModel: Codable {
         case statusMessage = "status_message"
     }
 }
-
-
-

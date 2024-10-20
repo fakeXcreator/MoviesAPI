@@ -12,6 +12,12 @@ class HeaderCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Variables
     
+    var viewModel: DetailViewModel! {
+            didSet {
+                configureView()
+            }
+        }
+    
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
@@ -40,11 +46,6 @@ class HeaderCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func configure(with viewModel: HeaderViewModel) {
-        self.titleLabel.text = viewModel.title
-        self.dateLabel.text = viewModel.releaseDate
-    }
-
     
     // MARK: - Setup Views
     private func setupUI() {
@@ -66,4 +67,20 @@ class HeaderCollectionViewCell: UICollectionViewCell {
             make.width.equalTo(titleLabel)
         }
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        titleLabel.text = nil
+        dateLabel.text = nil
+    }
+    
+    public func configureView() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            titleLabel.text = self.viewModel.movie.title
+            dateLabel.text = self.viewModel.movie.releaseDate
+        }
+    }
+
 }
+

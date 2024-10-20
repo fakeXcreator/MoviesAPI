@@ -22,5 +22,3 @@ struct TrendingMoviesModel: Codable {
         case imdbID = "imdb_id"
     }
 }
-
-

@@ -1,15 +1,14 @@
 import UIKit
 
-class DetailViewController: UIViewController {
+final class DetailViewController: UIViewController {
     
-    // MARK: - Variables
-    private let dMovie: TrendingMoviesModel
-    private var viewModel: DetailViewModel?
-    private let detailView = DetailView()
+    private let viewModel: DetailViewModel
     
-    // MARK: - LifeCycle
-    init(_ dMovie: TrendingMoviesModel) {
-        self.dMovie = dMovie
+    private let detailView: DetailView
+    
+    init(viewModel: DetailViewModel) {
+        self.viewModel = viewModel
+        self.detailView = DetailView(frame: .zero, viewModel: viewModel)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -20,59 +19,77 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        fetchMovieDetails()
+        configureConstraints()
+        detailView.collectionView?.delegate = self
+        detailView.collectionView?.dataSource = self
     }
     
-    // MARK: - UI Setup
     private func setupUI() {
+        title = viewModel.title
+        view.backgroundColor = .systemBackground
         view.addSubview(detailView)
+    }
+    
+    private func configureConstraints() {
         detailView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+            make.leading.equalToSuperview()
+            make.trailing.equalToSuperview()
         }
     }
     
-    // MARK: - Fetch Movie Details
-    private func fetchMovieDetails() {
-        detailView.startLoading()
+}
 
-        let service = Service()
-        service.fetchMovieDetails(movieId: dMovie.imdbID) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.detailView.stopLoading()
-                switch result {
-                case .success(let data):
-                    if let movieDetails = self?.parseMovieDetails(data: data) {
-                        self?.viewModel = DetailViewModel(movie: movieDetails)
-                        self?.detailView.viewModel = self?.viewModel
-                        self?.detailView.collectionView?.reloadData()
-                    } else {
-                        print("Failed to parse movie details")
-                        self?.showErrorAlert("Failed to parse movie details")
-                    }
-                case .failure(let error):
-                    print("Error fetching movie details: \(error)")
-                    self?.showErrorAlert("Error fetching movie details: \(error.localizedDescription)")
-                }
-            }
-        }
+extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return viewModel.sections.count
     }
-
-    private func showErrorAlert(_ message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
-    }
-
     
-    // MARK: - Parse Movie Details
-    private func parseMovieDetails(data: Data) -> MovieDetailsModel? {
-        let decoder = JSONDecoder()
-        do {
-            let movieDetails = try decoder.decode(MovieDetailsModel.self, from: data)
-            return movieDetails
-        } catch {
-            print("Error parsing movie details: \(error)")
-            return nil
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let sectionType = viewModel.sections[indexPath.section]
+        switch sectionType {
+        case .header(let viewModel):
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HeaderCollectionViewCell.identifier, for: indexPath) as? HeaderCollectionViewCell else { fatalError() }
+            cell.configureView()
+            return cell
+        case .description(let viewModel):
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DescriptionCollectionViewCell.identifier, for: indexPath) as? DescriptionCollectionViewCell else { fatalError() }
+            cell.configureView()
+            return cell
+        case .information(let viewModel):
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InformationCollectionViewCell.identifier, for: indexPath) as? InformationCollectionViewCell else { fatalError() }
+            cell.configureView()
+            return cell
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard kind == UICollectionView.elementKindSectionHeader else {
+            fatalError("Unexpected element kind")
+        }
+
+        guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SectionHeader.identifier, for: indexPath) as? SectionHeader else {
+            fatalError("Cannot dequeue section header")
+        }
+
+        let sectionType = viewModel.sections[indexPath.section]
+        let sectionTitle: String
+
+        switch sectionType {
+        case .header:
+            sectionTitle = "Header"
+        case .description:
+            sectionTitle = "Description"
+        case .information:
+            sectionTitle = "Information"
+        }
+        sectionHeader.configureSectionCell(label: sectionTitle.capitalized)
+        return sectionHeader
+    }
+    
 }

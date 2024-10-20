@@ -33,6 +33,10 @@ final class DetailViewModel {
         sections.append(.information(viewModel: informationViewModel))
     }
     
+    public var title: String? {
+        movie.title
+    }
+    
     func createHeaderSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: .absolute(100))

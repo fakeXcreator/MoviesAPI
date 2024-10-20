@@ -77,16 +77,50 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.tableView.deselectRow(at: indexPath, animated: true)
-
-        // Get the selected movie
-        let selectedMovie = viewModel.movie(at: indexPath.row)
-
-        // Create the DetailViewController with the selected movie
-        let detailVC = DetailViewController(selectedMovie)
-
-        // Push the DetailViewController onto the navigation stack
-        navigationController?.pushViewController(detailVC, animated: true)
-
+            tableView.deselectRow(at: indexPath, animated: true)
+            
+            // Retrieve the selected movie
+            let selectedMovie = viewModel.movie(at: indexPath.row)
+            
+            // Fetch or convert selectedMovie into MovieDetailsModel
+            fetchMovieDetails(for: selectedMovie) { [weak self] movieDetails in
+                // Create a DetailViewModel from the detailed movie info
+                let detailViewModel = DetailViewModel(movie: movieDetails)
+                
+                // Pass the DetailViewModel to the DetailViewController
+                let detailVC = DetailViewController(viewModel: detailViewModel)
+                
+                // Push the DetailViewController onto the navigation stack
+                self?.navigationController?.pushViewController(detailVC, animated: true)
+            }
+        }
+        
+        // Function to fetch detailed movie data using the selected movie's ID
+        func fetchMovieDetails(for movie: TrendingMoviesModel, completion: @escaping (MovieDetailsModel) -> Void) {
+            let service = Service()
+            
+            service.fetchMovieDetails(movieId: movie.imdbID) { result in
+                switch result {
+                case .success(let data):
+                    // Parse the data into MovieDetailsModel
+                    if let movieDetails = self.parseMovieDetails(data: data) {
+                        completion(movieDetails) // Pass the details to the completion handler
+                    }
+                case .failure(let error):
+                    print("Error fetching movie details: \(error)")
+                }
+            }
+        }
+        
+        // Parsing function for movie details
+        private func parseMovieDetails(data: Data) -> MovieDetailsModel? {
+            let decoder = JSONDecoder()
+            do {
+                let movieDetails = try decoder.decode(MovieDetailsModel.self, from: data)
+                return movieDetails
+            } catch {
+                print("Error parsing movie details: \(error)")
+                return nil
+            }
+        }
     }
-}

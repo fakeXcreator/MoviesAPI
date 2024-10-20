@@ -1,47 +1,45 @@
-//
-//  DetailView.swift
-//  TestMovie
-//
-//  Created by Daniil Kim on 18.10.2024.
-//
-
 import UIKit
 
 final class DetailView: UIView {
+    private let viewModel: DetailViewModel
+    
     var collectionView: UICollectionView?
     
-    private var spinner: UIActivityIndicatorView = {
+
+    private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
         spinner.hidesWhenStopped = true
         return spinner
     }()
     
-    var viewModel: DetailViewModel!
-    
-    override init(frame: CGRect) {
+    init(frame: CGRect, viewModel: DetailViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
         setupUI()
         configureConstraints()
     }
     
+    // MARK: -  Setup UI
     private func setupUI() {
-        backgroundColor = .systemBackground
+        backgroundColor = .systemPurple
         let collectionView = createCollectionView()
         self.collectionView = collectionView
         addSubview(collectionView)
         addSubview(spinner)
     }
     
+    // MARK: -  Setup constraints
     private func configureConstraints() {
         guard let collectionView = collectionView else {
             return
         }
-        
+
         spinner.snp.makeConstraints { make in
-            make.width.height.equalTo(100)
+            make.width.equalTo(100)
+            make.height.equalTo(100)
             make.center.equalToSuperview()
         }
-        
+
         collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -81,14 +79,5 @@ final class DetailView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    // Additional method to start/stop the spinner
-    func startLoading() {
-        spinner.startAnimating()
-    }
-    
-    func stopLoading() {
-        spinner.stopAnimating()
     }
 }

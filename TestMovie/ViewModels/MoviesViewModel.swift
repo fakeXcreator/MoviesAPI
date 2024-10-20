@@ -50,4 +50,3 @@ class MoviesViewModel {
         return movies[index]
     }
 }
-

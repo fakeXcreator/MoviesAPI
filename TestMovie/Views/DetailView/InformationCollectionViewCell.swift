@@ -11,57 +11,56 @@ class InformationCollectionViewCell: UICollectionViewCell {
     static let identifier = "InformationCollectionViewCell"
     
     // MARK: - Variables
+    var viewModel: DetailViewModel! {
+        didSet {
+            configureView()
+        }
+    }
     
-    private let ratingLabel: UILabel = {
-        let ratingLabel = UILabel()
-        ratingLabel.textColor = .label
-        ratingLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        ratingLabel.textAlignment = .left
-        return ratingLabel
+    // MARK: - UI Components
+    private lazy var imdbRatingLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor.label
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
     
-    private let rateLabel: UILabel = {
-        let rateLabel = UILabel()
-        rateLabel.textColor = .label
-        rateLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        rateLabel.textAlignment = .left
-        return rateLabel
+    private lazy var ratedLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor.label
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
     
-    private let genresLabel: UILabel = {
-        let genresLabel = UILabel()
-        genresLabel.textColor = .label
-        genresLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        genresLabel.textAlignment = .left
-        return genresLabel
+    private lazy var genresLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor.label
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
     
-    private let countriesLabel: UILabel = {
-        let countriesLabel = UILabel()
-        countriesLabel.textColor = .label
-        countriesLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        countriesLabel.textAlignment = .left
-        return countriesLabel
+    private lazy var countriesLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor.label
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
     
-    private let languagesLabel: UILabel = {
-        let languagesLabel = UILabel()
-        languagesLabel.textColor = .label
-        languagesLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        languagesLabel.textAlignment = .left
-        return languagesLabel
+    private lazy var languagesLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor.label
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
     
-    private let starsLabel: UILabel = {
-        let starsLabel = UILabel()
-        starsLabel.textColor = .label
-        starsLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        starsLabel.textAlignment = .left
-        return starsLabel
+    private lazy var starsLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor.label
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
     
-   
-    
+    // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -72,59 +71,76 @@ class InformationCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func configure(with viewModel: InformationViewModel) {
-        self.ratingLabel.text = viewModel.imdbRating
-        self.rateLabel.text = viewModel.rated
-        self.genresLabel.text = viewModel.genres
-        self.countriesLabel.text = viewModel.countries
-        self.languagesLabel.text = viewModel.languages
-        self.starsLabel.text = viewModel.stars
-    }
-    
+    // MARK: - Setup Views
     private func setupUI() {
-        self.addSubview(ratingLabel)
-        self.addSubview(rateLabel)
+        self.addSubview(imdbRatingLabel)
+        self.addSubview(ratedLabel)
         self.addSubview(genresLabel)
         self.addSubview(countriesLabel)
         self.addSubview(languagesLabel)
         self.addSubview(starsLabel)
     }
     
+    // MARK: - Setup Constraints
     private func configureConstraints() {
-        ratingLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.equalToSuperview().offset(10)
-            make.trailing.equalToSuperview().offset(-10)
+        imdbRatingLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
         }
         
-        rateLabel.snp.makeConstraints { make in
-            make.top.equalTo(ratingLabel.snp.bottom).offset(3)
-            make.leading.equalTo(ratingLabel)
-            make.trailing.equalTo(ratingLabel)
+        ratedLabel.snp.makeConstraints { make in
+            make.top.equalTo(imdbRatingLabel.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
         }
         
         genresLabel.snp.makeConstraints { make in
-            make.top.equalTo(rateLabel.snp.bottom).offset(3)
-            make.leading.equalTo(rateLabel)
-            make.trailing.equalTo(rateLabel)
+            make.top.equalTo(ratedLabel.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
         }
         
         countriesLabel.snp.makeConstraints { make in
-            make.top.equalTo(genresLabel.snp.bottom).offset(3)
-            make.leading.equalTo(rateLabel)
-            make.trailing.equalTo(rateLabel)
+            make.top.equalTo(genresLabel.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
         }
         
         languagesLabel.snp.makeConstraints { make in
-            make.top.equalTo(countriesLabel.snp.bottom).offset(3)
-            make.leading.equalTo(rateLabel)
-            make.trailing.equalTo(rateLabel)
+            make.top.equalTo(countriesLabel.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
         }
         
         starsLabel.snp.makeConstraints { make in
-            make.top.equalTo(languagesLabel.snp.bottom).offset(3)
-            make.leading.equalTo(rateLabel)
-            make.trailing.equalTo(rateLabel)
+            make.top.equalTo(languagesLabel.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.bottom.equalToSuperview().offset(-10)
+        }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imdbRatingLabel.text = nil
+        ratedLabel.text = nil
+        genresLabel.text = nil
+        countriesLabel.text = nil
+        languagesLabel.text = nil
+        starsLabel.text = nil
+    }
+    
+    // MARK: - Configure View
+    public func configureView() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            imdbRatingLabel.text = "IMDB Rating: \(viewModel.movie.imdbRating)"
+            ratedLabel.text = "Rated: \(viewModel.movie.rated ?? "N/A")"
+            genresLabel.text = "Genres: \(viewModel.movie.genres.joined(separator: ", "))"
+            countriesLabel.text = "Countries: \(viewModel.movie.countries.joined(separator: ", "))"
+            languagesLabel.text = "Languages: \(viewModel.movie.language.joined(separator: ", "))"
+            starsLabel.text = "Stars: \(viewModel.movie.stars?.joined(separator: ", ") ?? "N/A")"
         }
     }
 }
